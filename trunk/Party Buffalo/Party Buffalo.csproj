@@ -419,7 +419,6 @@
     <None Include="Resources\Xbox360_015.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GNU_GENERAL_PUBLIC_LICENSE.txt" />
     <Content Include="Main Icon.ico" />
     <None Include="Resources\nyancat_fixed.gif" />
     <None Include="Resources\rainbow4.png" />
