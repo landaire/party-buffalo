@@ -3686,5 +3686,10 @@ namespace Party_Buffalo
             Properties.Settings.Default.Save();
             panel3.Visible = !m_hideStatusBar.Checked;
         }
+
+        private void menuItem10_Click_1(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://code.google.com/p/party-buffalo/");
+        }
     }
 }

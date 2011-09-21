@@ -98,6 +98,7 @@
             this.menuItem7 = new System.Windows.Forms.MenuItem();
             this.menuItem12 = new System.Windows.Forms.MenuItem();
             this.menuItem13 = new System.Windows.Forms.MenuItem();
+            this.menuItem10 = new System.Windows.Forms.MenuItem();
             this.menuItem8 = new System.Windows.Forms.MenuItem();
             this.treeview_ContextMenu = new System.Windows.Forms.ContextMenu();
             this.t_Extract = new System.Windows.Forms.MenuItem();
@@ -660,14 +661,21 @@
             // 
             this.menuItem12.Index = 7;
             this.menuItem12.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuItem13});
+            this.menuItem13,
+            this.menuItem10});
             this.menuItem12.Text = "Develo&pment";
             // 
             // menuItem13
             // 
             this.menuItem13.Index = 0;
-            this.menuItem13.Text = "Get Source Code";
+            this.menuItem13.Text = "Get Source Code (Old)";
             this.menuItem13.Click += new System.EventHandler(this.menuItem13_Click);
+            // 
+            // menuItem10
+            // 
+            this.menuItem10.Index = 1;
+            this.menuItem10.Text = "Google Code";
+            this.menuItem10.Click += new System.EventHandler(this.menuItem10_Click_1);
             // 
             // menuItem8
             // 
@@ -1403,6 +1411,7 @@
         private System.Windows.Forms.MenuItem m_hideToolBar;
         private System.Windows.Forms.MenuItem m_hideAddressBar;
         private System.Windows.Forms.MenuItem m_hideStatusBar;
+        private System.Windows.Forms.MenuItem menuItem10;
     }
 }
 

@@ -902,7 +902,7 @@ namespace CLKsFATXLib
             }
             // Looks like we'll be adding clusters...
             else if (Size.UpToNearestCluster(PartitionInfo.ClusterSize) >
-                TotalLength.UpToNearestCluster(PartitionInfo.ClusterSize))
+                TotalLength.UpToNearestCluster(PartitionInfo.ClusterSize) || ((Size == 0) && TotalLength.UpToNearestCluster(PartitionInfo.ClusterSize) > PartitionInfo.ClusterSize))
             {
                 int ClustersToAdd = (int)(TotalLength.UpToNearestCluster(PartitionInfo.ClusterSize) / PartitionInfo.ClusterSize);
                 // Subtract the total clusters from the number clusters we already have
@@ -1614,11 +1614,52 @@ namespace CLKsFATXLib
             if (new System.IO.FileInfo(Path).Length == 0)
             {
                 Console.WriteLine("Creating null file");
-                File f = new File(this.PartitionInfo, new EntryFunctions(this).GetNewEntry(this, 0, new Geometry.Flags[0], NewName), this.Drive);
-                f.Parent = this;
-                f.FullPath = this.FullPath + "\\" + f.Name;
-                Return.Entry = f;
-                eea.ModifiedEntry = f;
+                EntryData newE = new EntryFunctions(this).GetNewEntry(this, 0, new Geometry.Flags[0], NewName);
+                try
+                {
+
+                    Console.WriteLine("Getting blocks needed");
+                    int BlocksNeeded = 1;
+                    Console.WriteLine(sw.Elapsed.ToString());
+                    List<uint> Blocks = new List<uint>();
+                    Console.WriteLine("Getting new entry");
+                    if (newE.EntryOffset >= VariousFunctions.GetBlockOffset(this.BlocksOccupied[BlocksOccupied.Length - 1], this) + this.PartitionInfo.ClusterSize)
+                    {
+                        List<uint> blocks = this.BlocksOccupied.ToList();
+                        blocks.Add(VariousFunctions.GetBlockFromOffset(newE.EntryOffset, this.PartitionInfo));
+                        this.BlocksOccupied = blocks.ToArray();
+                    }
+                    Console.WriteLine(sw.Elapsed.ToString());
+                    Blocks.Add(newE.StartingCluster);
+
+                    // Write the file data...
+                    // FileAction to be used
+                    fa.MaxValue = Blocks.Count;
+
+                    File f = new File(this.PartitionInfo, newE, this.Drive);
+                    f.Parent = this;
+                    f.FullPath = this.FullPath + "\\" + f.Name;
+                    eea.ModifiedEntry = f;
+                    Return.Entry = f;
+                    this.cachedFiles.Add(f);
+
+                    fa.Progress = Blocks.Count;
+                }
+                // This excpetion here is going to be that we're out of space...
+                catch (Exception x)
+                {
+                    Console.WriteLine("Exception thrown, deleting written entry");
+                    // Delete this entry
+                    newE.NameSize = 0xE5;
+                    // Create a new entry functions class so we can get rid of this entry
+                    EntryFunctions ef = new EntryFunctions(this);
+                    // Clear the FAT chain
+                    Console.WriteLine("Clearing FAT chain");
+                    ef.ClearFATChain(new uint[] { newE.StartingCluster });
+                    // Mark this entry as deleted
+                    ef.CreateNewEntry(newE);
+                    throw x;
+                }
             }
             else
             {
@@ -1779,6 +1820,79 @@ namespace CLKsFATXLib
             eea.ParentFolder = this;
             OnEntryEvent(ref eea);
             UpdateModifiedTime();
+            return Return;
+        }
+
+        /// <summary>
+        /// Creates a new, emptry file from the given path
+        /// </summary>
+        /// <param name="Path">Path to the file</param>
+        /// <returns>Returns a WriteResult with a bool indicating whether or not there were problems writing the file.  If true, then the Entry property will be the conflicting entry</returns>
+        public Structs.WriteResult CreateFile(string NewName)
+        {
+            WriteResult Return = new WriteResult();
+            EntryEventArgs eea = new EntryEventArgs();
+
+            fa.CurrentFilePath = this.FullPath + "\\" + NewName;
+            fa.CurrentFile = NewName;
+            fa.MaxValue = 1;
+            fa.Progress = 0;
+            OnFolderAction(ref fa);
+
+            foreach (Folder f in Folders())
+            {
+                if (f.Name.ToLower() == NewName.ToLower())
+                {
+                    Return.Entry = f;
+                    Return.CouldNotWrite = true;
+                    Return.ConflictingEntryPath = f.FullPath;
+                    return Return;
+                }
+            }
+
+            foreach (File f in Files())
+            {
+                if (f.Name.ToLower() == NewName.ToLower())
+                {
+                    Return.Entry = f;
+                    Return.CouldNotWrite = true;
+                    Return.ConflictingEntryPath = f.FullPath;
+                    return Return;
+                }
+            }
+
+            EntryData newE = new EntryFunctions(this).GetNewEntry(this, 0, new Geometry.Flags[0], NewName);
+
+            int BlocksNeeded = 1;
+            List<uint> Blocks = new List<uint>();
+            Console.WriteLine("Getting new entry");
+            if (newE.EntryOffset >= VariousFunctions.GetBlockOffset(this.BlocksOccupied[BlocksOccupied.Length - 1], this) + this.PartitionInfo.ClusterSize)
+            {
+                List<uint> blocks = this.BlocksOccupied.ToList();
+                blocks.Add(VariousFunctions.GetBlockFromOffset(newE.EntryOffset, this.PartitionInfo));
+                this.BlocksOccupied = blocks.ToArray();
+            }
+            {
+                Blocks.Add(newE.StartingCluster);
+
+                // Write the file data...
+                // FileAction to be used
+                fa.MaxValue = Blocks.Count;
+                OnFolderAction(ref fa);
+
+                File f = new File(this.PartitionInfo, newE, this.Drive);
+                f.Parent = this;
+                f.FullPath = this.FullPath + "\\" + f.Name;
+                eea.ModifiedEntry = f;
+                Return.Entry = f;
+                this.cachedFiles.Add(f);
+
+                fa.Progress = Blocks.Count;
+                OnFolderAction(ref fa);
+                eea.FullParentPath = FullPath;
+                eea.ParentFolder = this;
+                OnEntryEvent(ref eea);
+            }
             return Return;
         }
 
