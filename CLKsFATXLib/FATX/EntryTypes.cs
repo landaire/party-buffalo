@@ -26,6 +26,11 @@ namespace CLKsFATXLib
                 {
                     if (!IsDeleted)
                     {
+                        if (!IsFolder && ((File)this).Size == 0)
+                        {
+                            blocks = new List<uint>();
+                            return blocks.ToArray();
+                        }
                         EntryFunctions e = new EntryFunctions(this);
                         blocks = e.GetBlocksOccupied().ToList();
                     }
@@ -902,7 +907,7 @@ namespace CLKsFATXLib
             }
             // Looks like we'll be adding clusters...
             else if (Size.UpToNearestCluster(PartitionInfo.ClusterSize) >
-                TotalLength.UpToNearestCluster(PartitionInfo.ClusterSize) || ((Size == 0) && TotalLength.UpToNearestCluster(PartitionInfo.ClusterSize) > PartitionInfo.ClusterSize))
+                TotalLength.UpToNearestCluster(PartitionInfo.ClusterSize) || (Size == 0))
             {
                 int ClustersToAdd = (int)(TotalLength.UpToNearestCluster(PartitionInfo.ClusterSize) / PartitionInfo.ClusterSize);
                 // Subtract the total clusters from the number clusters we already have
@@ -1908,8 +1913,8 @@ namespace CLKsFATXLib
                 eea.FullParentPath = FullPath;
                 eea.ParentFolder = this;
                 OnEntryEvent(ref eea);
+                return Return;
             }
-            return Return;
         }
 
         internal bool EntryEventNull
