@@ -1005,7 +1005,7 @@ namespace CLKsFATXLib
             newEntryData.Size = Size;
             newEntryData.Name = EntryName;
             newEntryData.NameSize = (byte)EntryName.Length;
-            if ((Size == 0 && Flags.Contains(Geometry.Flags.Directory)) || (Size != 0 && Flags.Length == 0))
+            if ((Size == 0 && Flags.Contains(Geometry.Flags.Directory)) || (Flags.Length == 0))
             {
                 newEntryData.StartingCluster = Destination.Drive.GetFreeBlocks(Destination, 1, 0, 0, false)[0];
             }
