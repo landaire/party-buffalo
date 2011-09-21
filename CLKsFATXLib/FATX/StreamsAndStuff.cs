@@ -711,7 +711,7 @@ namespace CLKsFATXLib.Streams
                     Array.Copy(array, offset + DataRead, TempData, beginningDataToRemove, AddToArray);
                     Underlying.Position -= DataReadableCluster;
                     Underlying.Write(TempData, 0, TempData.Length);
-                    if (LastRead200Offset == Underlying.Position)
+                    if (LastRead200Offset == Underlying.Position - DataReadableCluster)
                     {
                         Array.Copy(TempData, 0, LastRead200, 0, 0x200);
                     }
