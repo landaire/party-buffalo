@@ -689,10 +689,7 @@ namespace CLKsFATXLib
             {
                 return stfsmagic;
             }
-            else if (IsSTFSPackage())
-            {
-                return stfsmagic;
-            }
+            IsSTFSPackage();
             return stfsmagic;
         }
 
@@ -830,17 +827,20 @@ namespace CLKsFATXLib
 
             // Create the entry functions so we can clear the FAT chain
             EntryFunctions ef = new EntryFunctions(this);
-            // Get the FAT chain
-            uint[] FatChain = this.BlocksOccupied;
-            // Clear the FAT chain
-            ef.ClearFATChain(FatChain);
-            // Add to the remaining space on the drive
-            if (Drive.Remaining != ~0UL)
+            if (Size != 0)
             {
-                Drive.Remaining += (ulong)(FatChain.Length * PartitionInfo.ClusterSize);
+                // Get the FAT chain
+                uint[] FatChain = this.BlocksOccupied;
+                // Clear the FAT chain
+                ef.ClearFATChain(FatChain);
+                // Add to the remaining space on the drive
+                if (Drive.Remaining != ~0UL)
+                {
+                    Drive.Remaining += (ulong)(FatChain.Length * PartitionInfo.ClusterSize);
+                }
+                // Dispose of the FatChain
+                FatChain = null;
             }
-            // Dispose of the FatChain
-            FatChain = null;
             
             // Change the progress
             fa.Progress = 1;
@@ -931,6 +931,10 @@ namespace CLKsFATXLib
                 // Overwrite the size in the entry data
                 Structs.EntryData ed = EntryData;
                 ed.Size = (uint)TotalLength;
+                if (Size == 0)
+                {
+                    ed.StartingCluster = Current[0];
+                }
                 // Write the new entry data
                 ef.CreateNewEntry(ed);
                 EntryData = ed;
@@ -946,34 +950,46 @@ namespace CLKsFATXLib
             {
                 throw new Exception("File size must be non-negative number");
             }
-            long Difference = Size - TotalLength;
-            // Check to see if we can just change the file size
-            if (VariousFunctions.DownToNearestCluster(Difference, PartitionInfo.ClusterSize) == VariousFunctions.DownToNearestCluster(Size, PartitionInfo.ClusterSize))
+            if (Size == 0)
             {
-                // yes, let's just do that.
+                return;
+            }
+            long Difference = Size - TotalLength;
+            if (VariousFunctions.DownToNearestCluster(Difference, PartitionInfo.ClusterSize) != VariousFunctions.DownToNearestCluster(Size, PartitionInfo.ClusterSize))
+            {
+                // Looks like we have to remove part of the cluster chain...
+                if (TotalLength == 0)
+                {
+                    new EntryFunctions(this).ClearFATChain(this.BlocksOccupied);
+                    this.BlocksOccupied = new uint[0];
+                }
+                else
+                {
+                    List<uint> Chain = this.BlocksOccupied.ToList();
+                    // Number of clusters to remove
+                    int ClustersToRemove = Chain.Count - (int)((TotalLength > PartitionInfo.ClusterSize) ? 1 :
+                        (VariousFunctions.UpToNearestCluster(TotalLength, PartitionInfo.ClusterSize) / PartitionInfo.ClusterSize));
+                    EntryFunctions ef = new EntryFunctions(this);
+                    // Clear the cluster chain
+                    ef.ClearFATChain(Chain.ToArray());
+                    Chain.RemoveRange((int)((TotalLength > PartitionInfo.ClusterSize) ? 1 :
+                        (VariousFunctions.UpToNearestCluster(TotalLength, PartitionInfo.ClusterSize) / PartitionInfo.ClusterSize)),
+                        ClustersToRemove);
+                    // Re-write the cluster chain
+                    ef.WriteFATChain(Chain.ToArray());
+                    BlocksOccupied = Chain.ToArray();
+                }
+            }
+            {
                 EntryData newE = this.EntryData;
                 newE.Size = (uint)TotalLength;
+                if (TotalLength == 0)
+                {
+                    newE.StartingCluster = 0;
+                }
                 EntryFunctions ef = new EntryFunctions(this);
                 ef.CreateNewEntry(newE);
                 this.EntryData = newE;
-                return;
-            }
-            else
-            {
-                // Nope, we have to remove part of the cluster chain.
-                List<uint> Chain = this.BlocksOccupied.ToList();
-                // Number of clusters to remove
-                int ClustersToRemove = Chain.Count - (int)((TotalLength > PartitionInfo.ClusterSize) ? 1 :
-                    (VariousFunctions.UpToNearestCluster(TotalLength, PartitionInfo.ClusterSize) / PartitionInfo.ClusterSize));
-                EntryFunctions ef = new EntryFunctions(this);
-                // Clear the cluster chain
-                ef.ClearFATChain(Chain.ToArray());
-                Chain.RemoveRange((int)((TotalLength > PartitionInfo.ClusterSize) ? 1 :
-                    (VariousFunctions.UpToNearestCluster(TotalLength, PartitionInfo.ClusterSize) / PartitionInfo.ClusterSize)),
-                    ClustersToRemove);
-                // Re-write the cluster chain
-                ef.WriteFATChain(Chain.ToArray());
-                BlocksOccupied = Chain.ToArray();
             }
         }
     }
