@@ -602,10 +602,13 @@ namespace CLKsFATXLib.Streams
         {
             Underlying.WriteByte(value);
         }
-
+         
         public override void Write(byte[] array, int offset, int count)
         {
-
+            if (Position == Length)
+            {
+                return;
+            }
             /* Probably a bad idea, but this is a copy pasta from the read function, modified */
 
             // This will represent the amount of data we read, and will be our return value.
@@ -738,7 +741,6 @@ namespace CLKsFATXLib.Streams
             }
 
             Position = InitialPosition + DataRead;
-            count = DataRead;
         }
 
         public override long Length
@@ -753,59 +755,9 @@ namespace CLKsFATXLib.Streams
         // I don't think I'VariousFunctions going to ever use it.
         public override int ReadByte()
         {
-            // Check if we're at the edge of a cluster...
-            if (RealOffset == VariousFunctions.UpToNearestClusterForce(RealSectorOffset, xFile.PartitionInfo.ClusterSize))
-            {
-                Underlying.Position = VariousFunctions.GetBlockOffset(xFile.BlocksOccupied[DetermineBlockIndex(VariousFunctions.UpToNearestClusterForce(RealSectorOffset, xFile.PartitionInfo.ClusterSize))], xFile);
-                xPositionInFile++;
-                return Underlying.ReadByte();
-            }
-            // Check if we're at the beginning of a sector...
-            if (RealOffset == VariousFunctions.DownToNearest200(RealOffset))
-            {
-                xPositionInFile++;
-                return Underlying.ReadByte();
-            }
-            // We aren't at the beginning of a sector, and we're not at the end of a cluster
-            // We must be somewhere in-between, so we've got to do some hax.
-            byte[] b = new byte[1];
-            Read(b, 0, 1);
-            return (int)b[0];
-            // I think I made it return that first byte for some reason, but idk
-            // oh yeeeuh, I wanted it to read from the nearest 0x200 byte boundary
-            // so if we keep calling .ReadByte() it would have that shit cached
-            // idk why i didn't do that
-            int index = (int)(RealOffset - RealSectorOffset);
-            if (Position.DownToNearest200() == PreviouslyReadOffset && index < PreviouslyRead.Length)
-            {
-                xPositionInFile++;
-                return (int)PreviouslyRead[index];
-            }
-            else
-            {
-                byte[] buffer = new byte[0];
-                // Read the buffer
-                if (Length - Position >= 0x200)
-                {
-                    buffer = new byte[0x200];
-                }
-                else
-                {
-                    buffer = new byte[(Length - Position)];
-                }
-                index = (int)(RealOffset - RealSectorOffset);
-                Read(buffer, 0, buffer.Length);
-                try
-                {
-                    Position -= buffer.Length - 1;
-                }
-                catch { }
-                // Set the previously read to thissssssssss
-                PreviouslyRead = buffer;
-                PreviouslyReadOffset = Position.DownToNearest200();
-                // Return the value at the index we should be at
-                return (int)buffer[index];
-            }
+            byte[] bA = new byte[1];
+            Read(bA, 0, 1);
+            return bA[0];
         }
 
         private byte[] LastRead200 = new byte[0x200];
