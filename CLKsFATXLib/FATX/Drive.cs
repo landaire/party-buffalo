@@ -109,6 +109,7 @@ namespace CLKsFATXLib
             Streams.Reader reader = Reader();
             switch (DriveType)
             {
+                case DriveType.Backup:
                 case DriveType.HardDisk:
                     // Create our reader...
                     try
@@ -117,73 +118,27 @@ namespace CLKsFATXLib
                         reader.BaseStream.Position = 0;
                         if (reader.ReadUInt32() == 0x00020000) // dev magic
                         {
+                            IsDev = true;
                             DevPartitionRegions[] regions = DevPartitions();
                             reader.BaseStream.Position = (long)regions[0].Sector * 0x200;
-                            if (reader.ReadUInt32() == 0x58544146 /*XTAF*/)
-                            {
-                                return IsDev = true;
-                            }
                         }
                         else
                         {
                             // Seek to the data position
                             reader.BaseStream.Position = (long)Constants.HDDOffsets.Data;
-                            // Read the magic
-                            if (reader.ReadUInt32() == 0x58544146 /*XTAF*/)
-                            {
-                                return true;
-                            }
                         }
                     }
                     catch { }
                     break;
                 case DriveType.USB:
-                    try
-                    {
-                        Streams.Reader r2 = Reader();
-                        // Seek to the data offset
-                        r2.BaseStream.Position = (long)Constants.USBOffsets.Data;
-                        if (r2.ReadUInt32() == 0x58544146 /*XTAF*/)
-                        {
-                            return true;
-                        }
-                    }
-                    catch(Exception e) 
-                    {
-                        break;
-                    }
+                    // Seek to the data offset
+                    reader.BaseStream.Position = (long)Constants.USBOffsets.Data;
                     break;
-                case DriveType.Backup:
-                    try
-                    {
-                        Streams.Reader r1 = Reader();
-                        // Check to see if it's a dev drive
-                        r1.BaseStream.Position = 0;
-                        if (r1.ReadUInt32() == 0x00020000) // dev magic
-                        {
-                            DevPartitionRegions[] regions = DevPartitions();
-                            r1.BaseStream.Position = (long)regions[0].Sector * 0x200;
-                            if (r1.ReadUInt32() == 0x58544146 /*XTAF*/)
-                            {
-                                return IsDev = true;
-                            }
-                            return IsDev = true;
-                        }
-                        if (Length > (long)Constants.HDDOffsets.Data)
-                        {
-                            // Seek to the data position
-                            r1.BaseStream.Position = (long)Constants.HDDOffsets.Data;
-                        }
-                        // Read the magic
-                        if (r1.ReadUInt32() == 0x58544146 /*XTAF*/)
-                        {
-                            return true;
-                        }
-                    }
-                    catch { }
-                    break;
+                default:
+                    return false;
             }
-            return false;
+
+            return reader.ReadUInt32() == (uint)Constants.FATXHeader.Magic;
         }
 
         /// <summary>
