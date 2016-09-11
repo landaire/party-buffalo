@@ -103,33 +103,19 @@ namespace CLKsFATXLib
             return rVal;
         }
 
-        public static bool IsTitleIDFolder(string Name)
+        public static bool IsTitleIDFolder(IEnumerable<char> name)
         {
-            // Title ID's are 8 digits long; this shit isn't a Title ID folder if it's
-            // longer or shorter
-            if (Name.Length != 8)
+            bool isHex;
+            foreach (var c in name)
             {
-                return false;
-            }
-            // It was 8 digits long, let's check if the characters are valid hex digits
-            char[] Chars = Name.ToArray<char>();
-            char[] AcceptableChars = "0123456789ABCDEFabcdef".ToArray<char>();
-            for (int i = 0; i < Chars.Length; i++)
-            {
-                bool Acceptable = false;
-                for (int j = 0; j < AcceptableChars.Length; j++)
-                {
-                    if (Chars[i] == AcceptableChars[j])
-                    {
-                        Acceptable = true;
-                        break;
-                    }
-                }
-                if (!Acceptable)
-                {
+                isHex = ((c >= '0' && c <= '9') ||
+                         (c >= 'a' && c <= 'f') ||
+                         (c >= 'A' && c <= 'F'));
+
+                if (!isHex)
                     return false;
-                }
             }
+
             return true;
         }
 

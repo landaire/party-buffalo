@@ -11,6 +11,11 @@ namespace CLKsFATXLib.Constants
      * -> SataCreateDevkitPartitions (formats a drive for dev use)
      */
 
+    public enum FATXHeader : uint
+    {
+        Magic = 0x58544146,
+    }
+
     public enum STFSOffsets
     {
         TitleID = 0x360,
