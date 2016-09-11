@@ -134,7 +134,7 @@ namespace Party_Buffalo.Forms
             l_FullPath.Text = xFile.FullPath;
             toolTip1.SetToolTip(l_FullPath, l_FullPath.Text);
             l_Flags.Text = "";
-            CLKsFATXLib.Geometry.Flags[] flags = xFile.Flags;
+            CLKsFATXLib.Constants.Flags[] flags = xFile.Flags;
             for (int i = 0; i < flags.Length; i++)
             {
                 if (i == flags.Length - 1)

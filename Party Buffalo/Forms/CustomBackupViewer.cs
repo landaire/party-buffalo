@@ -165,7 +165,7 @@ namespace Party_Buffalo.Forms
                     uint header = br.ReadUInt32(true);
                     if (header == 0x434F4E20 || header == 0x4C495645 || header == 0x50495253)
                     {
-                        br.BaseStream.Position = (long)CLKsFATXLib.Geometry.STFSOffsets.DisplayName;
+                        br.BaseStream.Position = (long)CLKsFATXLib.Constants.STFSOffsets.DisplayName;
                         li.SubItems.Add(br.ReadUnicodeString(0x80));
                     }
                 }

@@ -457,21 +457,21 @@ namespace CLKsFATXLib
             throw new Exception(PackagePath + " is not a valid package!");
         }
 
-        public static Geometry.Flags[] Attributes(byte Flags)
+        public static Constants.Flags[] Attributes(byte Flags)
         {
-            List<Geometry.Flags> FL = new List<Geometry.Flags>();
+            List<Constants.Flags> FL = new List<Constants.Flags>();
             // Read bit zero, mask the rest of that shit
             for (short i = 1, j = 0; i <= 0x80; i <<= 1, j++)
             {
                 if (((Flags & i) >> j) == 1)
                 {
-                    FL.Add((Geometry.Flags)Enum.Parse(typeof(Geometry.Flags), Enum.GetName(typeof(Geometry.Flags), j)));
+                    FL.Add((Constants.Flags)Enum.Parse(typeof(Constants.Flags), Enum.GetName(typeof(Constants.Flags), j)));
                 }
             }
             return FL.ToArray();
         }
 
-        public static byte FlagsToByte(Geometry.Flags[] Flags)
+        public static byte FlagsToByte(Constants.Flags[] Flags)
         {
             byte Return = 0;
             for (int i = 0; i < Flags.Length; i++)

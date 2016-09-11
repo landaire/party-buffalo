@@ -1475,13 +1475,13 @@ namespace Party_Buffalo
                         {
                             li.SubItems.Add(Files[i].ContentName());
                         }
-                        else if (Files[i].Parent.FullPath == Files[i].Drive.CacheFolderPath && CLKsFATXLib.Geometry.CacheFilePrefixes.CachePrefixes.Contains(Files[i].Name.Substring(0, 2)))
+                        else if (Files[i].Parent.FullPath == Files[i].Drive.CacheFolderPath && CLKsFATXLib.Constants.CacheFilePrefixes.CachePrefixes.Contains(Files[i].Name.Substring(0, 2)))
                         {
-                            for (int j = 0; j < CLKsFATXLib.Geometry.CacheFilePrefixes.CachePrefixes.Length; j++)
+                            for (int j = 0; j < CLKsFATXLib.Constants.CacheFilePrefixes.CachePrefixes.Length; j++)
                             {
-                                if (CLKsFATXLib.Geometry.CacheFilePrefixes.CachePrefixes[j] == Files[i].Name.Substring(0, 2))
+                                if (CLKsFATXLib.Constants.CacheFilePrefixes.CachePrefixes[j] == Files[i].Name.Substring(0, 2))
                                 {
-                                    li.SubItems.Add(CLKsFATXLib.Geometry.CacheFilePrefixes.PrefixNames[j]);
+                                    li.SubItems.Add(CLKsFATXLib.Constants.CacheFilePrefixes.PrefixNames[j]);
                                     break;
                                 }
                             }
@@ -2336,13 +2336,13 @@ namespace Party_Buffalo
                             {
                                 li2.SubItems.Add(((File)eg.ModifiedEntry).ContentName());
                             }
-                            else if (((File)eg.ModifiedEntry).Parent.FullPath == ((File)eg.ModifiedEntry).Drive.CacheFolderPath && CLKsFATXLib.Geometry.CacheFilePrefixes.CachePrefixes.Contains(((File)eg.ModifiedEntry).Name.Substring(0, 2)))
+                            else if (((File)eg.ModifiedEntry).Parent.FullPath == ((File)eg.ModifiedEntry).Drive.CacheFolderPath && CLKsFATXLib.Constants.CacheFilePrefixes.CachePrefixes.Contains(((File)eg.ModifiedEntry).Name.Substring(0, 2)))
                             {
-                                for (int i = 0; i < CLKsFATXLib.Geometry.CacheFilePrefixes.CachePrefixes.Length; i++)
+                                for (int i = 0; i < CLKsFATXLib.Constants.CacheFilePrefixes.CachePrefixes.Length; i++)
                                 {
-                                    if (CLKsFATXLib.Geometry.CacheFilePrefixes.CachePrefixes[i] == ((File)eg.ModifiedEntry).Name.Substring(0, 2))
+                                    if (CLKsFATXLib.Constants.CacheFilePrefixes.CachePrefixes[i] == ((File)eg.ModifiedEntry).Name.Substring(0, 2))
                                     {
-                                        li2.SubItems.Add(CLKsFATXLib.Geometry.CacheFilePrefixes.PrefixNames[i]);
+                                        li2.SubItems.Add(CLKsFATXLib.Constants.CacheFilePrefixes.PrefixNames[i]);
                                         break;
                                     }
                                 }

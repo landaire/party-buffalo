@@ -106,20 +106,20 @@ namespace CLKsFATXLib
         /// </returns>
         public bool IsFATXDrive()
         {
+            Streams.Reader reader = Reader();
             switch (DriveType)
             {
                 case DriveType.HardDisk:
                     // Create our reader...
                     try
                     {
-                        Streams.Reader r = Reader();
                         // Check to see if it's a dev drive first
-                        r.BaseStream.Position = 0;
-                        if (r.ReadUInt32() == 0x00020000) // dev magic
+                        reader.BaseStream.Position = 0;
+                        if (reader.ReadUInt32() == 0x00020000) // dev magic
                         {
                             DevPartitionRegions[] regions = DevPartitions();
-                            r.BaseStream.Position = (long)regions[0].Sector * 0x200;
-                            if (r.ReadUInt32() == 0x58544146 /*XTAF*/)
+                            reader.BaseStream.Position = (long)regions[0].Sector * 0x200;
+                            if (reader.ReadUInt32() == 0x58544146 /*XTAF*/)
                             {
                                 return IsDev = true;
                             }
@@ -127,9 +127,9 @@ namespace CLKsFATXLib
                         else
                         {
                             // Seek to the data position
-                            r.BaseStream.Position = (long)Geometry.HDDOffsets.Data;
+                            reader.BaseStream.Position = (long)Constants.HDDOffsets.Data;
                             // Read the magic
-                            if (r.ReadUInt32() == 0x58544146 /*XTAF*/)
+                            if (reader.ReadUInt32() == 0x58544146 /*XTAF*/)
                             {
                                 return true;
                             }
@@ -142,7 +142,7 @@ namespace CLKsFATXLib
                     {
                         Streams.Reader r2 = Reader();
                         // Seek to the data offset
-                        r2.BaseStream.Position = (long)Geometry.USBOffsets.Data;
+                        r2.BaseStream.Position = (long)Constants.USBOffsets.Data;
                         if (r2.ReadUInt32() == 0x58544146 /*XTAF*/)
                         {
                             return true;
@@ -169,10 +169,10 @@ namespace CLKsFATXLib
                             }
                             return IsDev = true;
                         }
-                        if (Length > (long)Geometry.HDDOffsets.Data)
+                        if (Length > (long)Constants.HDDOffsets.Data)
                         {
                             // Seek to the data position
-                            r1.BaseStream.Position = (long)Geometry.HDDOffsets.Data;
+                            r1.BaseStream.Position = (long)Constants.HDDOffsets.Data;
                         }
                         // Read the magic
                         if (r1.ReadUInt32() == 0x58544146 /*XTAF*/)
@@ -320,13 +320,13 @@ namespace CLKsFATXLib
                     {
                         if (!IsDev)
                         {
-                            foreach (Geometry.HDDOffsets e in Enum.GetValues(typeof(Geometry.HDDOffsets)))
+                            foreach (Constants.HDDOffsets e in Enum.GetValues(typeof(Constants.HDDOffsets)))
                             {
-                                if (e == CLKsFATXLib.Geometry.HDDOffsets.Data || e == CLKsFATXLib.Geometry.HDDOffsets.Compatibility || e == CLKsFATXLib.Geometry.HDDOffsets.System_Cache || e == CLKsFATXLib.Geometry.HDDOffsets.System_Extended)
+                                if (e == CLKsFATXLib.Constants.HDDOffsets.Data || e == CLKsFATXLib.Constants.HDDOffsets.Compatibility || e == CLKsFATXLib.Constants.HDDOffsets.System_Cache || e == CLKsFATXLib.Constants.HDDOffsets.System_Extended)
                                 {
                                     PartitionFunctions FS = new PartitionFunctions(this, (long)e);
 
-                                    if (FS.Magic() == 0x58544146 && (e == CLKsFATXLib.Geometry.HDDOffsets.Data || e == CLKsFATXLib.Geometry.HDDOffsets.Compatibility || e == CLKsFATXLib.Geometry.HDDOffsets.System_Cache || e == CLKsFATXLib.Geometry.HDDOffsets.System_Extended))
+                                    if (FS.Magic() == 0x58544146 && (e == CLKsFATXLib.Constants.HDDOffsets.Data || e == CLKsFATXLib.Constants.HDDOffsets.Compatibility || e == CLKsFATXLib.Constants.HDDOffsets.System_Cache || e == CLKsFATXLib.Constants.HDDOffsets.System_Extended))
                                     {
                                         Structs.PartitionInfo PI = new Structs.PartitionInfo();
                                         PI.ClusterSize = FS.ClusterSize();
@@ -336,7 +336,7 @@ namespace CLKsFATXLib
                                         PI.FATSize = FS.FATSize();
                                         PI.ID = FS.PartitionID();
                                         PI.Magic = FS.Magic();
-                                        PI.Name = ((e == CLKsFATXLib.Geometry.HDDOffsets.System_Cache) ? "System Auxiliary" : ((e == CLKsFATXLib.Geometry.HDDOffsets.System_Extended) ? "System Extended" : e.ToString()));
+                                        PI.Name = ((e == CLKsFATXLib.Constants.HDDOffsets.System_Cache) ? "System Auxiliary" : ((e == CLKsFATXLib.Constants.HDDOffsets.System_Extended) ? "System Extended" : e.ToString()));
                                         PI.Offset = (long)e;
                                         PI.SectorsPerCluster = FS.SectorsPerCluster();
                                         PI.EntrySize = FS.EntrySize;
@@ -392,9 +392,9 @@ namespace CLKsFATXLib
                     }
                     else if (DriveType == DriveType.USB)
                     {
-                        foreach (Geometry.USBOffsets e in Enum.GetValues(typeof(Geometry.USBOffsets)))
+                        foreach (Constants.USBOffsets e in Enum.GetValues(typeof(Constants.USBOffsets)))
                         {
-                            if (e == CLKsFATXLib.Geometry.USBOffsets.Cache)
+                            if (e == CLKsFATXLib.Constants.USBOffsets.Cache)
                             {
                                 continue;
                             }
@@ -411,7 +411,7 @@ namespace CLKsFATXLib
                                 PI.FATSize = FS.FATSize();
                                 PI.ID = FS.PartitionID();
                                 PI.Magic = FS.Magic();
-                                PI.Name = ((e == CLKsFATXLib.Geometry.USBOffsets.aSystem_Aux) ? "System Auxiliary" : ((e == CLKsFATXLib.Geometry.USBOffsets.aSystem_Extended) ? "System Extended" : e.ToString()));
+                                PI.Name = ((e == CLKsFATXLib.Constants.USBOffsets.aSystem_Aux) ? "System Auxiliary" : ((e == CLKsFATXLib.Constants.USBOffsets.aSystem_Extended) ? "System Extended" : e.ToString()));
                                 PI.Offset = (long)e;
                                 PI.SectorsPerCluster = FS.SectorsPerCluster();
                                 PI.EntrySize = FS.EntrySize;
@@ -431,11 +431,11 @@ namespace CLKsFATXLib
                             PartitionFunctions FS = null;
                             if (PIList.Count > 1)
                             {
-                                FS = new PartitionFunctions(this, (long)Geometry.USBOffsets.Cache);
+                                FS = new PartitionFunctions(this, (long)Constants.USBOffsets.Cache);
                             }
                             else
                             {
-                                FS = new PartitionFunctions(this, (long)Geometry.USBOffsets.Cache, (long)Geometry.USBPartitionSizes.Cache_NoSystem);
+                                FS = new PartitionFunctions(this, (long)Constants.USBOffsets.Cache, (long)Constants.USBPartitionSizes.Cache_NoSystem);
                             }
 
                             if (FS.Magic() == 0x58544146)
@@ -449,7 +449,7 @@ namespace CLKsFATXLib
                                 PI.ID = FS.PartitionID();
                                 PI.Magic = FS.Magic();
                                 PI.Name = "Cache";
-                                PI.Offset = (long)Geometry.USBOffsets.Cache;
+                                PI.Offset = (long)Constants.USBOffsets.Cache;
                                 PI.SectorsPerCluster = FS.SectorsPerCluster();
                                 PI.EntrySize = FS.EntrySize;
                                 PI.Size = FS.PartitionSize();
@@ -470,15 +470,15 @@ namespace CLKsFATXLib
                     {
                         if (!IsDev)
                         {
-                            if (Length > (long)Geometry.HDDOffsets.Data)
+                            if (Length > (long)Constants.HDDOffsets.Data)
                             {
-                                foreach (Geometry.HDDOffsets e in Enum.GetValues(typeof(Geometry.HDDOffsets)))
+                                foreach (Constants.HDDOffsets e in Enum.GetValues(typeof(Constants.HDDOffsets)))
                                 {
-                                    if (e == CLKsFATXLib.Geometry.HDDOffsets.Data || e == CLKsFATXLib.Geometry.HDDOffsets.Compatibility || e == CLKsFATXLib.Geometry.HDDOffsets.System_Cache || e == CLKsFATXLib.Geometry.HDDOffsets.System_Extended)
+                                    if (e == CLKsFATXLib.Constants.HDDOffsets.Data || e == CLKsFATXLib.Constants.HDDOffsets.Compatibility || e == CLKsFATXLib.Constants.HDDOffsets.System_Cache || e == CLKsFATXLib.Constants.HDDOffsets.System_Extended)
                                     {
                                         PartitionFunctions FS = new PartitionFunctions(this, (long)e);
 
-                                        if (FS.Magic() == 0x58544146 && (e == CLKsFATXLib.Geometry.HDDOffsets.Data || e == CLKsFATXLib.Geometry.HDDOffsets.Compatibility || e == CLKsFATXLib.Geometry.HDDOffsets.System_Cache || e == CLKsFATXLib.Geometry.HDDOffsets.System_Extended))
+                                        if (FS.Magic() == 0x58544146 && (e == CLKsFATXLib.Constants.HDDOffsets.Data || e == CLKsFATXLib.Constants.HDDOffsets.Compatibility || e == CLKsFATXLib.Constants.HDDOffsets.System_Cache || e == CLKsFATXLib.Constants.HDDOffsets.System_Extended))
                                         {
                                             Structs.PartitionInfo PI = new Structs.PartitionInfo();
                                             PI.ClusterSize = FS.ClusterSize();
@@ -488,7 +488,7 @@ namespace CLKsFATXLib
                                             PI.FATSize = FS.FATSize();
                                             PI.ID = FS.PartitionID();
                                             PI.Magic = FS.Magic();
-                                            PI.Name = ((e == CLKsFATXLib.Geometry.HDDOffsets.System_Cache) ? "System Auxiliary" : ((e == CLKsFATXLib.Geometry.HDDOffsets.System_Extended) ? "System Extended" : e.ToString()));
+                                            PI.Name = ((e == CLKsFATXLib.Constants.HDDOffsets.System_Cache) ? "System Auxiliary" : ((e == CLKsFATXLib.Constants.HDDOffsets.System_Extended) ? "System Extended" : e.ToString()));
                                             PI.Offset = (long)e;
                                             PI.SectorsPerCluster = FS.SectorsPerCluster();
                                             PI.EntrySize = FS.EntrySize;
@@ -681,7 +681,7 @@ namespace CLKsFATXLib
                     case DriveType.USB:
                         return "Cache";
                     case DriveType.Backup:
-                        if (Length > (long)Geometry.HDDOffsets.Data)
+                        if (Length > (long)Constants.HDDOffsets.Data)
                         {
                             return "Data\\Cache";
                         }
@@ -718,7 +718,7 @@ namespace CLKsFATXLib
                     Folder Cache = FolderFromPath(CacheFolderPath);
                     foreach (File file in Cache.Files())
                     {
-                        if (file.Name.StartsWith(Geometry.CacheFilePrefixes.GetPrefix(Geometry.Prefixes.TitleName)))
+                        if (file.Name.StartsWith(Constants.CacheFilePrefixes.GetPrefix(Constants.Prefixes.TitleName)))
                         {
                             names.AddRange(CachedFromFile(file));
                         }

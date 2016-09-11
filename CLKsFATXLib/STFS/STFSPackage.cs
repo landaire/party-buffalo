@@ -24,9 +24,9 @@ namespace CLKsFATXLib.STFS
         {
             // Get a new reader for this file
             Streams.Reader r = new CLKsFATXLib.Streams.Reader(PackageStream);
-            r.BaseStream.Position = (long)Geometry.STFSOffsets.TitleImageSize;
+            r.BaseStream.Position = (long)Constants.STFSOffsets.TitleImageSize;
             int Size = r.ReadInt32();
-            r.BaseStream.Position = (long)Geometry.STFSOffsets.TitleImage;
+            r.BaseStream.Position = (long)Constants.STFSOffsets.TitleImage;
             try
             {
                 return System.Drawing.Image.FromStream(new System.IO.MemoryStream(r.ReadBytes(Size)));
@@ -42,9 +42,9 @@ namespace CLKsFATXLib.STFS
         {
             // Get a new reader for this file
             Streams.Reader r = new CLKsFATXLib.Streams.Reader(PackageStream);
-            r.BaseStream.Position = (long)Geometry.STFSOffsets.ContentImageSize;
+            r.BaseStream.Position = (long)Constants.STFSOffsets.ContentImageSize;
             int Size = r.ReadInt32();
-            r.BaseStream.Position = (long)Geometry.STFSOffsets.ContentImage;
+            r.BaseStream.Position = (long)Constants.STFSOffsets.ContentImage;
             try
             {
                 return System.Drawing.Image.FromStream(new System.IO.MemoryStream(r.ReadBytes(Size)));
@@ -95,7 +95,7 @@ namespace CLKsFATXLib.STFS
         public string ContentName()
         {
             Streams.Reader r = new CLKsFATXLib.Streams.Reader(PackageStream);
-            r.BaseStream.Position = (long)Geometry.STFSOffsets.DisplayName;
+            r.BaseStream.Position = (long)Constants.STFSOffsets.DisplayName;
             return r.ReadUnicodeString(0x80);
         }
 
@@ -105,7 +105,7 @@ namespace CLKsFATXLib.STFS
         public string TitleName()
         {
             Streams.Reader r = new CLKsFATXLib.Streams.Reader(PackageStream);
-            r.BaseStream.Position = (long)Geometry.STFSOffsets.TitleName;
+            r.BaseStream.Position = (long)Constants.STFSOffsets.TitleName;
             return r.ReadUnicodeString(0x80);
         }
 
@@ -115,7 +115,7 @@ namespace CLKsFATXLib.STFS
         public uint TitleID()
         {
             Streams.Reader r = new CLKsFATXLib.Streams.Reader(PackageStream);
-            r.BaseStream.Position = (long)Geometry.STFSOffsets.TitleID;
+            r.BaseStream.Position = (long)Constants.STFSOffsets.TitleID;
             return r.ReadUInt32();
         }
 
@@ -125,7 +125,7 @@ namespace CLKsFATXLib.STFS
         public byte[] ProfileID()
         {
             Streams.Reader r = new CLKsFATXLib.Streams.Reader(PackageStream);
-            r.BaseStream.Position = (long)Geometry.STFSOffsets.ProfileID;
+            r.BaseStream.Position = (long)Constants.STFSOffsets.ProfileID;
             return r.ReadBytes(0x8);
         }
 
@@ -136,7 +136,7 @@ namespace CLKsFATXLib.STFS
         public byte[] DeviceID()
         {
             Streams.Reader r = new CLKsFATXLib.Streams.Reader(PackageStream);
-            r.BaseStream.Position = (long)Geometry.STFSOffsets.DeviceID;
+            r.BaseStream.Position = (long)Constants.STFSOffsets.DeviceID;
             return r.ReadBytes(0x14);
         }
 
@@ -147,7 +147,7 @@ namespace CLKsFATXLib.STFS
         public byte[] ConsoleID()
         {
             Streams.Reader r = new CLKsFATXLib.Streams.Reader(PackageStream);
-            r.BaseStream.Position = (long)Geometry.STFSOffsets.ConsoleID;
+            r.BaseStream.Position = (long)Constants.STFSOffsets.ConsoleID;
             return r.ReadBytes(0x5);
         }
 

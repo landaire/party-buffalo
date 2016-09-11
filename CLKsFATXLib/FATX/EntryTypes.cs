@@ -182,7 +182,7 @@ namespace CLKsFATXLib
         {
             get
             {
-                if (Flags.Contains(Geometry.Flags.Directory))
+                if (Flags.Contains(Constants.Flags.Directory))
                 {
                     return true;
                 }
@@ -232,7 +232,7 @@ namespace CLKsFATXLib
             internal set;
         }
 
-        public Geometry.Flags[] Flags
+        public Constants.Flags[] Flags
         {
             get
             {
@@ -573,14 +573,14 @@ namespace CLKsFATXLib
                 {
                     // Get a new reader for this file
                     Streams.Reader r = new CLKsFATXLib.Streams.Reader(GetStream());
-                    r.BaseStream.Position = (long)Geometry.STFSOffsets.TitleImageSize;
+                    r.BaseStream.Position = (long)Constants.STFSOffsets.TitleImageSize;
                     int Size = r.ReadInt32();
                     if (Size == 0)
                     {
                         giattempted = true;
                         return null;
                     }
-                    r.BaseStream.Position = (long)Geometry.STFSOffsets.TitleImage;
+                    r.BaseStream.Position = (long)Constants.STFSOffsets.TitleImage;
                     try
                     {
                         ti = System.Drawing.Image.FromStream(new System.IO.MemoryStream(r.ReadBytes(Size)));
@@ -607,14 +607,14 @@ namespace CLKsFATXLib
                 {
                     // Get a new reader for this file
                     Streams.Reader r = new CLKsFATXLib.Streams.Reader(GetStream());
-                    r.BaseStream.Position = (long)Geometry.STFSOffsets.ContentImageSize;
+                    r.BaseStream.Position = (long)Constants.STFSOffsets.ContentImageSize;
                     int Size = r.ReadInt32();
                     if (Size == 0)
                     {
                         giattempted = true;
                         return null;
                     }
-                    r.BaseStream.Position = (long)Geometry.STFSOffsets.ContentImage;
+                    r.BaseStream.Position = (long)Constants.STFSOffsets.ContentImage;
                     try
                     {
                         gi = System.Drawing.Image.FromStream(new System.IO.MemoryStream(r.ReadBytes(Size)));
@@ -710,7 +710,7 @@ namespace CLKsFATXLib
                 if (name == null)
                 {
                     Streams.Reader r = new CLKsFATXLib.Streams.Reader(GetStream());
-                    r.BaseStream.Position = (long)Geometry.STFSOffsets.DisplayName;
+                    r.BaseStream.Position = (long)Constants.STFSOffsets.DisplayName;
                     name = r.ReadUnicodeString(0x80);
                 }
                 return name;
@@ -729,7 +729,7 @@ namespace CLKsFATXLib
                 if (tname == null)
                 {
                     Streams.Reader r = new CLKsFATXLib.Streams.Reader(GetStream());
-                    r.BaseStream.Position = (long)Geometry.STFSOffsets.TitleName;
+                    r.BaseStream.Position = (long)Constants.STFSOffsets.TitleName;
                     tname = r.ReadUnicodeString(0x80);
                 }
                 return tname;
@@ -748,7 +748,7 @@ namespace CLKsFATXLib
                 if (tid == 0)
                 {
                     Streams.Reader r = new CLKsFATXLib.Streams.Reader(GetStream());
-                    r.BaseStream.Position = (long)Geometry.STFSOffsets.TitleID;
+                    r.BaseStream.Position = (long)Constants.STFSOffsets.TitleID;
                     tid = r.ReadUInt32();
                 }
                 return tid;
@@ -767,7 +767,7 @@ namespace CLKsFATXLib
                 if (pid == null)
                 {
                     Streams.Reader r = new CLKsFATXLib.Streams.Reader(GetStream());
-                    r.BaseStream.Position = (long)Geometry.STFSOffsets.ProfileID;
+                    r.BaseStream.Position = (long)Constants.STFSOffsets.ProfileID;
                     pid = r.ReadBytes(0x8);
                 }
                 return pid;
@@ -787,7 +787,7 @@ namespace CLKsFATXLib
                 if (did == null)
                 {
                     Streams.Reader r = new CLKsFATXLib.Streams.Reader(GetStream());
-                    r.BaseStream.Position = (long)Geometry.STFSOffsets.DeviceID;
+                    r.BaseStream.Position = (long)Constants.STFSOffsets.DeviceID;
                     did = r.ReadBytes(0x14);
                 }
                 return did;
@@ -807,7 +807,7 @@ namespace CLKsFATXLib
                 if (cid == null)
                 {
                     Streams.Reader r = new CLKsFATXLib.Streams.Reader(GetStream());
-                    r.BaseStream.Position = (long)Geometry.STFSOffsets.ConsoleID;
+                    r.BaseStream.Position = (long)Constants.STFSOffsets.ConsoleID;
                     cid = r.ReadBytes(0x5);
                 }
                 return cid;
@@ -1420,7 +1420,7 @@ namespace CLKsFATXLib
             EntryFunctions ef = new EntryFunctions(this);
             Console.WriteLine("Creating new folder");
             Folder f = new Folder(this.PartitionInfo,
-                ef.GetNewEntry(this, 0, new Geometry.Flags[] { Geometry.Flags.Directory }, Name),
+                ef.GetNewEntry(this, 0, new Constants.Flags[] { Constants.Flags.Directory }, Name),
                 this.Drive);
             // Check if the new folder was created on a new cluster
             if (f.EntryOffset >= VariousFunctions.GetBlockOffset(this.BlocksOccupied[BlocksOccupied.Length - 1], this) + this.PartitionInfo.ClusterSize)
@@ -1635,7 +1635,7 @@ namespace CLKsFATXLib
             if (new System.IO.FileInfo(Path).Length == 0)
             {
                 Console.WriteLine("Creating null file");
-                EntryData newE = new EntryFunctions(this).GetNewEntry(this, 0, new Geometry.Flags[0], NewName);
+                EntryData newE = new EntryFunctions(this).GetNewEntry(this, 0, new Constants.Flags[0], NewName);
                 try
                 {
 
@@ -1690,7 +1690,7 @@ namespace CLKsFATXLib
                 Console.WriteLine(sw.Elapsed.ToString());
                 List<uint> Blocks = new List<uint>();
                 Console.WriteLine("Getting new entry");
-                EntryData newE = new EntryFunctions(this).GetNewEntry(this, (uint)new System.IO.FileInfo(Path).Length, new Geometry.Flags[0], NewName);
+                EntryData newE = new EntryFunctions(this).GetNewEntry(this, (uint)new System.IO.FileInfo(Path).Length, new Constants.Flags[0], NewName);
                 if (newE.EntryOffset >= VariousFunctions.GetBlockOffset(this.BlocksOccupied[BlocksOccupied.Length - 1], this) + this.PartitionInfo.ClusterSize)
                 {
                     List<uint> blocks = this.BlocksOccupied.ToList();
@@ -1882,7 +1882,7 @@ namespace CLKsFATXLib
                 }
             }
 
-            EntryData newE = new EntryFunctions(this).GetNewEntry(this, 0, new Geometry.Flags[0], NewName);
+            EntryData newE = new EntryFunctions(this).GetNewEntry(this, 0, new Constants.Flags[0], NewName);
 
             int BlocksNeeded = 1;
             List<uint> Blocks = new List<uint>();

@@ -63,7 +63,7 @@
     <Compile Include="FATX\Drive.cs" />
     <Compile Include="FATX\EntryTypes.cs" />
     <Compile Include="FATX\Extensions.cs" />
-    <Compile Include="FATX\Geometry.cs" />
+    <Compile Include="FATX\Constants.cs" />
     <Compile Include="FATX\PartitionFunctions.cs" />
     <Compile Include="FATX\StreamsAndStuff.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

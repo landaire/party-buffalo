@@ -42,7 +42,7 @@ namespace CLKsFATXLib
             ProcessBootSector();
         }
 
-        public PartitionFunctions(Drive Drive, Geometry.HDDOffsets p)
+        public PartitionFunctions(Drive Drive, Constants.HDDOffsets p)
         {
             FATXDrive = Drive;
             Partition.Name = p.ToString();
@@ -50,7 +50,7 @@ namespace CLKsFATXLib
             ProcessBootSector();
         }
 
-        public PartitionFunctions(Drive Drive, Geometry.DevOffsets p)
+        public PartitionFunctions(Drive Drive, Constants.DevOffsets p)
         {
             FATXDrive = Drive;
             Partition.Name = p.ToString();
@@ -312,7 +312,7 @@ namespace CLKsFATXLib
                     {
                         entrySize = 4;
                     }
-                    else if (Partition.Offset == (long)Geometry.HDDOffsets.System_Cache || Partition.Offset == (long)Geometry.HDDOffsets.System_Extended)
+                    else if (Partition.Offset == (long)Constants.HDDOffsets.System_Cache || Partition.Offset == (long)Constants.HDDOffsets.System_Extended)
                     {
                         entrySize = 2;
                     }
@@ -469,11 +469,11 @@ namespace CLKsFATXLib
                 }
                 return fatsize;
             }
-            if (Partition.Offset == (long)Geometry.HDDOffsets.System_Extended)
+            if (Partition.Offset == (long)Constants.HDDOffsets.System_Extended)
             {
                 return 0x5000;
             }
-            else if (Partition.Offset == (long)Geometry.HDDOffsets.System_Cache)
+            else if (Partition.Offset == (long)Constants.HDDOffsets.System_Cache)
             {
                 return 0x7000;
             }
@@ -665,7 +665,7 @@ namespace CLKsFATXLib
                     if (FATXDrive.IsDev)
                     {
                         // If we're on the DEVKIT? partition...
-                        if (Partition.Offset == (long)Geometry.DevOffsets.DEVKIT_)
+                        if (Partition.Offset == (long)Constants.DevOffsets.DEVKIT_)
                         {
                             // This is simply for some testing purposes... shit's not permanent yet
                             psize = 0x11FFD000;
@@ -679,16 +679,16 @@ namespace CLKsFATXLib
                     {
                         switch (Partition.Offset)
                         {
-                            case (long)Geometry.HDDOffsets.Compatibility:
-                                psize = (long)Geometry.HDDLengths.Compatibility;
+                            case (long)Constants.HDDOffsets.Compatibility:
+                                psize = (long)Constants.HDDLengths.Compatibility;
                                 break;
-                            case (long)Geometry.HDDOffsets.System_Cache:
-                                psize = (long)Geometry.HDDLengths.System_Cache;
+                            case (long)Constants.HDDOffsets.System_Cache:
+                                psize = (long)Constants.HDDLengths.System_Cache;
                                 break;
-                            case (long)Geometry.HDDOffsets.System_Extended:
-                                psize = (long)Geometry.HDDLengths.System_Extended;
+                            case (long)Constants.HDDOffsets.System_Extended:
+                                psize = (long)Constants.HDDLengths.System_Extended;
                                 break;
-                            case (long)Geometry.HDDOffsets.Data:
+                            case (long)Constants.HDDOffsets.Data:
                                 if (FATXDrive.DriveType == DriveType.HardDisk)
                                 {
                                     psize = (FATXDrive.Length - Partition.Offset);
@@ -698,11 +698,11 @@ namespace CLKsFATXLib
                                     psize = (FATXDrive.Length - Partition.Offset);
                                 }
                                 break;
-                            case (long)Geometry.HDDOffsets.GameCache:
-                                psize = (long)Geometry.HDDLengths.GameCache;
+                            case (long)Constants.HDDOffsets.GameCache:
+                                psize = (long)Constants.HDDLengths.GameCache;
                                 break;
-                            case (long)Geometry.HDDOffsets.SystemCache:
-                                psize = (long)Geometry.HDDLengths.SystemCache;
+                            case (long)Constants.HDDOffsets.SystemCache:
+                                psize = (long)Constants.HDDLengths.SystemCache;
                                 break;
                         }
                     }
@@ -711,17 +711,17 @@ namespace CLKsFATXLib
                 {
                     switch (Partition.Offset)
                     {
-                        case (long)Geometry.USBOffsets.Cache:
-                            psize = (long)Geometry.USBPartitionSizes.Cache;
+                        case (long)Constants.USBOffsets.Cache:
+                            psize = (long)Constants.USBPartitionSizes.Cache;
                             break;
-                        case (long)Geometry.USBOffsets.aSystem_Aux:
-                            psize = (long)Geometry.USBPartitionSizes.System_Aux;
+                        case (long)Constants.USBOffsets.aSystem_Aux:
+                            psize = (long)Constants.USBPartitionSizes.System_Aux;
                             break;
-                        case (long)Geometry.USBOffsets.aSystem_Extended:
-                            psize = (long)Geometry.USBPartitionSizes.System_Extended;
+                        case (long)Constants.USBOffsets.aSystem_Extended:
+                            psize = (long)Constants.USBPartitionSizes.System_Extended;
                             break;
-                        case (long)Geometry.USBOffsets.Data:
-                            psize = FATXDrive.Length - (long)Geometry.USBOffsets.Data;
+                        case (long)Constants.USBOffsets.Data:
+                            psize = FATXDrive.Length - (long)Constants.USBOffsets.Data;
                             break;
                     }
                 }
@@ -784,17 +784,17 @@ namespace CLKsFATXLib
                     }
                     Deleted = true;
                 }
-                List<Geometry.Flags> FL = new List<Geometry.Flags>();
+                List<Constants.Flags> FL = new List<Constants.Flags>();
                 // Read bit zero, mask the rest of that shit
                 for (short s = 1, j = 0; s <= 80; s <<= 1, j++)
                 {
                     if (((newEdata.Flags & s) >> j) == 1)
                     {
-                        FL.Add((Geometry.Flags)Enum.Parse(typeof(Geometry.Flags), Enum.GetName(typeof(Geometry.Flags), j)));
+                        FL.Add((Constants.Flags)Enum.Parse(typeof(Constants.Flags), Enum.GetName(typeof(Constants.Flags), j)));
                     }
                 }
                 // Folder
-                if (newEdata.StartingCluster != 0 && newEdata.Size == 0 && FL.Contains(Geometry.Flags.Directory))
+                if (newEdata.StartingCluster != 0 && newEdata.Size == 0 && FL.Contains(Constants.Flags.Directory))
                 {
                     Folder f = new Folder(Parent.PartitionInfo, newEdata, Parent.Drive);
                     f.FullPath = Parent.FullPath + "\\" + f.Name;
@@ -976,7 +976,7 @@ namespace CLKsFATXLib
         }
 
         /* AUTOMATICALLY CREATES SHIT */
-        public EntryData GetNewEntry(Folder Destination, uint Size, Geometry.Flags[] Flags, string EntryName)
+        public EntryData GetNewEntry(Folder Destination, uint Size, Constants.Flags[] Flags, string EntryName)
         {
             if (!VariousFunctions.CheckFileName(EntryName))
             {
@@ -1005,7 +1005,7 @@ namespace CLKsFATXLib
             newEntryData.Size = Size;
             newEntryData.Name = EntryName;
             newEntryData.NameSize = (byte)EntryName.Length;
-            if ((Size == 0 && Flags.Contains(Geometry.Flags.Directory)) || (Size != 0 && Flags.Length == 0))
+            if ((Size == 0 && Flags.Contains(Constants.Flags.Directory)) || (Size != 0 && Flags.Length == 0))
             {
                 newEntryData.StartingCluster = Destination.Drive.GetFreeBlocks(Destination, 1, 0, 0, false)[0];
             }
